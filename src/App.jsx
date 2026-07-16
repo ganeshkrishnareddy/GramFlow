@@ -45,6 +45,7 @@ function App() {
   const [showAllTxs, setShowAllTxs] = useState(false);
   const [showLoanModal, setShowLoanModal] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [activeTab, setActiveTab] = useState('home');
   const [loanAmount, setLoanAmount] = useState('');
   const [loanPurpose, setLoanPurpose] = useState('');
 
@@ -222,11 +223,11 @@ function App() {
         </div>
         
         <div className="sidebar-nav">
-          <div className="sidebar-item active" onClick={() => {setIsMenuOpen(false); showToast('Navigated to Home');}}>
+          <div className={`sidebar-item ${activeTab === 'home' ? 'active' : ''}`} onClick={() => {setIsMenuOpen(false); setActiveTab('home');}}>
             <Home size={20} />
             <span>Home</span>
           </div>
-          <div className="sidebar-item" onClick={() => {setIsMenuOpen(false); showToast('Opened Profile');}}>
+          <div className={`sidebar-item ${activeTab === 'profile' ? 'active' : ''}`} onClick={() => {setIsMenuOpen(false); setActiveTab('profile');}}>
             <User size={20} />
             <span>My Profile</span>
           </div>
@@ -253,15 +254,16 @@ function App() {
         <Menu size={24} color="var(--text-secondary)" style={{cursor: 'pointer'}} onClick={() => setIsMenuOpen(true)} />
       </div>
 
-      <div className="mobile-body">
-        <div className="mobile-balance-card">
-          <div className="mobile-balance-title">Estimated Monthly Inflow</div>
-          <div className="mobile-balance-amount">₹59,000</div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginTop: '0.5rem', fontSize: '0.85rem' }}>
-            <TrendingUp size={16} />
-            Looking good! +12% from last month
+      {activeTab === 'home' ? (
+        <div className="mobile-body">
+          <div className="mobile-balance-card">
+            <div className="mobile-balance-title">Estimated Monthly Inflow</div>
+            <div className="mobile-balance-amount">₹59,000</div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginTop: '0.5rem', fontSize: '0.85rem' }}>
+              <TrendingUp size={16} />
+              Looking good! +12% from last month
+            </div>
           </div>
-        </div>
 
         <div className="nudge-card">
           <AlertTriangle size={24} color="var(--warning)" style={{ flexShrink: 0 }} />
@@ -304,14 +306,50 @@ function App() {
           </div>
         </div>
 
-        <button 
-          className="loan-btn"
-          onClick={() => setShowLoanModal(true)}
-        >
-          <Landmark size={20} />
-          Apply for Micro-Loan
-        </button>
-      </div>
+          <button 
+            className="loan-btn"
+            onClick={() => setShowLoanModal(true)}
+          >
+            <Landmark size={20} />
+            Apply for Micro-Loan
+          </button>
+        </div>
+      ) : (
+        <div className="mobile-body">
+          <div className="card" style={{ padding: '1.5rem', textAlign: 'center' }}>
+            <div style={{ width: '80px', height: '80px', borderRadius: '50%', background: 'var(--accent-glow)', margin: '0 auto 1rem', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+              <User size={40} color="var(--accent-color)" />
+            </div>
+            <h3 style={{ fontSize: '1.25rem', marginBottom: '0.25rem' }}>Ganesh Krishna</h3>
+            <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', marginBottom: '1rem' }}>Srikanth Kirana Store</p>
+            <div style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem', padding: '0.5rem 1rem', background: 'rgba(16, 185, 129, 0.1)', color: 'var(--success)', borderRadius: '20px', fontSize: '0.85rem', fontWeight: '600' }}>
+              <ShieldCheck size={16} /> KYC Verified
+            </div>
+          </div>
+          
+          <div className="card" style={{ padding: '1rem', marginTop: '1rem' }}>
+            <h4 style={{ marginBottom: '1rem', color: 'var(--text-secondary)', fontSize: '0.85rem', textTransform: 'uppercase' }}>Business Details</h4>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                <span style={{ color: 'var(--text-secondary)' }}>GSTIN</span>
+                <span style={{ fontWeight: '500' }}>27AADCS1234F1Z9</span>
+              </div>
+              <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                <span style={{ color: 'var(--text-secondary)' }}>Phone</span>
+                <span style={{ fontWeight: '500' }}>+91 98765 43210</span>
+              </div>
+              <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                <span style={{ color: 'var(--text-secondary)' }}>Location</span>
+                <span style={{ fontWeight: '500' }}>Pune, Maharashtra</span>
+              </div>
+            </div>
+          </div>
+          
+          <button style={{ width: '100%', padding: '1rem', background: 'rgba(255,255,255,0.05)', borderRadius: '12px', marginTop: '1rem', color: 'var(--text-secondary)', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem', border: 'none', cursor: 'pointer' }}>
+            <Settings size={18} /> Edit Profile
+          </button>
+        </div>
+      )}
 
       {showLoanModal && (
         <div className="modal-overlay">

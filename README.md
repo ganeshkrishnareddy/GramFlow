@@ -1,5 +1,7 @@
 # GramFlow AI - Predictive Financial Intelligence
 
+🔥 **Live Demo:** [https://gramflowai.vercel.app/](https://gramflowai.vercel.app/)
+
 This is the prototype UI for **GramFlow AI**, built for the **NABARD Hackathon @ GFF 2026**.
 
 ## Overview
