@@ -56,6 +56,7 @@ function App() {
   const [activeTab, setActiveTab] = useState('home');
   const [loanAmount, setLoanAmount] = useState('');
   const [loanPurpose, setLoanPurpose] = useState('');
+  const [selectedEnterprise, setSelectedEnterprise] = useState(null);
 
   const showToast = (msg) => {
     setToastMessage(msg);
@@ -246,7 +247,7 @@ function App() {
                       </span>
                     </td>
                     <td>
-                      <button className="action-btn" onClick={() => showToast(`Opening profile for ${loan.enterprise}`)}>
+                      <button className="action-btn" onClick={() => setSelectedEnterprise(loan)}>
                         View Profile
                       </button>
                     </td>
@@ -257,6 +258,64 @@ function App() {
           </div>
         </div>
       </div>
+
+      {selectedEnterprise && (
+        <div className="modal-overlay" onClick={() => setSelectedEnterprise(null)}>
+          <div className="modal-content" onClick={e => e.stopPropagation()} style={{ maxWidth: '600px', width: '90%' }}>
+            <div className="modal-header">
+              <h3>Enterprise Profile</h3>
+              <button className="close-btn" onClick={() => setSelectedEnterprise(null)}>
+                <X size={24} />
+              </button>
+            </div>
+            <div style={{ padding: '1.5rem' }}>
+               <div style={{ display: 'flex', gap: '1.25rem', marginBottom: '1.5rem', alignItems: 'center' }}>
+                 <div style={{ width: '70px', height: '70px', borderRadius: '50%', background: 'var(--accent-glow)', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+                   <User size={36} color="var(--accent-color)" />
+                 </div>
+                 <div>
+                   <h2 style={{ margin: 0, fontSize: '1.5rem', color: '#fff' }}>{selectedEnterprise.owner}</h2>
+                   <p style={{ color: 'var(--text-secondary)', margin: '0.25rem 0 0.5rem 0', fontSize: '1rem' }}>{selectedEnterprise.enterprise}</p>
+                   <span className={`status-badge status-${selectedEnterprise.status.toLowerCase().replace(' ', '-')}`}>
+                     {selectedEnterprise.status}
+                   </span>
+                 </div>
+               </div>
+
+               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', marginBottom: '2rem' }}>
+                 <div className="card" style={{ padding: '1rem', border: '1px solid var(--card-border)' }}>
+                   <div style={{ color: 'var(--text-secondary)', fontSize: '0.85rem', marginBottom: '0.25rem' }}>Loan Amount</div>
+                   <div style={{ fontSize: '1.5rem', fontWeight: 'bold' }}>{selectedEnterprise.amount}</div>
+                 </div>
+                 <div className="card" style={{ padding: '1rem', border: '1px solid var(--card-border)' }}>
+                   <div style={{ color: 'var(--text-secondary)', fontSize: '0.85rem', marginBottom: '0.25rem' }}>Risk Score</div>
+                   <div style={{ fontSize: '1.5rem', fontWeight: 'bold', color: selectedEnterprise.risk >= 80 ? 'var(--success)' : selectedEnterprise.risk >= 60 ? 'var(--warning)' : 'var(--danger)' }}>
+                     {selectedEnterprise.risk} / 100
+                   </div>
+                 </div>
+               </div>
+
+               <h4 style={{ marginBottom: '1rem', color: 'var(--text-secondary)', borderBottom: '1px solid var(--card-border)', paddingBottom: '0.5rem' }}>Recent UPI Activity</h4>
+               <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+                 <div style={{ display: 'flex', justifyContent: 'space-between', padding: '1rem', background: 'rgba(255,255,255,0.02)', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.05)' }}>
+                   <div>
+                     <div style={{ fontWeight: '500' }}>Supplier Payment</div>
+                     <div style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', marginTop: '0.25rem' }}>Today, 10:30 AM</div>
+                   </div>
+                   <span style={{ color: 'var(--danger)', fontWeight: '600' }}>-₹{Math.floor(Math.random() * 5000 + 1000).toLocaleString()}</span>
+                 </div>
+                 <div style={{ display: 'flex', justifyContent: 'space-between', padding: '1rem', background: 'rgba(255,255,255,0.02)', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.05)' }}>
+                   <div>
+                     <div style={{ fontWeight: '500' }}>Customer Sale (UPI)</div>
+                     <div style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', marginTop: '0.25rem' }}>Yesterday, 4:15 PM</div>
+                   </div>
+                   <span style={{ color: 'var(--success)', fontWeight: '600' }}>+₹{Math.floor(Math.random() * 2000 + 500).toLocaleString()}</span>
+                 </div>
+               </div>
+            </div>
+          </div>
+        </div>
+      )}
     </>
   );
 
@@ -289,7 +348,7 @@ function App() {
             <User size={20} />
             <span>My Profile</span>
           </div>
-          <div className="sidebar-item" onClick={() => {setIsMenuOpen(false); showToast('Opened Loans');}}>
+          <div className={`sidebar-item ${activeTab === 'loans' ? 'active' : ''}`} onClick={() => {setIsMenuOpen(false); setActiveTab('loans');}}>
             <FileText size={20} />
             <span>My Loans</span>
           </div>
@@ -312,7 +371,7 @@ function App() {
         <Menu size={24} color="var(--text-secondary)" style={{cursor: 'pointer'}} onClick={() => setIsMenuOpen(true)} />
       </div>
 
-      {activeTab === 'home' ? (
+      {activeTab === 'home' && (
         <div className="mobile-body">
           <div className="mobile-balance-card">
             <div className="mobile-balance-title">Estimated Monthly Inflow</div>
@@ -323,46 +382,39 @@ function App() {
             </div>
           </div>
 
-        <div className="nudge-card">
-          <AlertTriangle size={24} color="var(--warning)" style={{ flexShrink: 0 }} />
-          <div>
-            <h4 style={{ color: 'var(--warning)', marginBottom: '0.25rem' }}>Upcoming Rain Alert</h4>
-            <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', lineHeight: 1.4 }}>
-              Heavy rain expected next week. Consider ordering your inventory early to avoid delays.
-            </p>
-          </div>
-        </div>
-
-        <div className="card" style={{ padding: '1rem', marginTop: '0.5rem' }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '1rem' }}>
-            <h3 style={{ fontSize: '1rem' }}>Recent UPI Transactions</h3>
-            <span 
-              style={{ color: 'var(--accent-color)', fontSize: '0.85rem', cursor: 'pointer' }}
-              onClick={() => setShowAllTxs(!showAllTxs)}
-            >
-              {showAllTxs ? 'Show less' : 'See all'}
-            </span>
+          <div className="nudge-card">
+            <AlertTriangle size={24} color="var(--warning)" style={{ flexShrink: 0 }} />
+            <div>
+              <h4 style={{ margin: '0 0 0.25rem 0', color: 'var(--warning)' }}>Upcoming Rain Alert</h4>
+              <p style={{ margin: 0, fontSize: '0.85rem', color: 'var(--text-secondary)' }}>Heavy rain expected next week. Consider ordering your inventory early to avoid delays.</p>
+            </div>
           </div>
 
-          <div className="transaction-list">
-            {displayedTxs.map(tx => (
-              <div className="transaction-item" key={tx.id}>
-                <div className="tx-info">
+          <div className="tx-list-container">
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
+              <h3 style={{ fontSize: '1rem' }}>Recent UPI Transactions</h3>
+              <span style={{ fontSize: '0.85rem', color: 'var(--accent-color)', cursor: 'pointer' }} onClick={() => setShowAllTxs(!showAllTxs)}>
+                {showAllTxs ? 'Show less' : 'See all'}
+              </span>
+            </div>
+            
+            {(showAllTxs ? allTransactions : allTransactions.slice(0, 3)).map(tx => (
+              <div key={tx.id} className="tx-item">
+                <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
                   <div className={`tx-icon ${tx.type === 'in' ? 'tx-in' : 'tx-out'}`}>
                     {tx.type === 'in' ? <ArrowDownRight size={20} /> : <ArrowUpRight size={20} />}
                   </div>
-                  <div className="tx-details">
-                    <h4>{tx.name}</h4>
-                    <p>{tx.time}</p>
+                  <div>
+                    <div style={{ fontWeight: '600', fontSize: '0.9rem' }}>{tx.name}</div>
+                    <div style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>{tx.time}</div>
                   </div>
                 </div>
-                <div style={{ fontWeight: '600', color: tx.type === 'in' ? 'var(--success)' : 'var(--text-primary)' }}>
+                <div style={{ fontWeight: '600', color: tx.type === 'in' ? 'var(--success)' : 'inherit' }}>
                   {tx.amount}
                 </div>
               </div>
             ))}
           </div>
-        </div>
 
           <button 
             className="loan-btn"
@@ -372,7 +424,9 @@ function App() {
             Apply for Micro-Loan
           </button>
         </div>
-      ) : (
+      )}
+
+      {activeTab === 'profile' && (
         <div className="mobile-body">
           <div className="card" style={{ padding: '1.5rem', textAlign: 'center' }}>
             <div style={{ width: '80px', height: '80px', borderRadius: '50%', background: 'var(--accent-glow)', margin: '0 auto 1rem', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
@@ -406,6 +460,44 @@ function App() {
           <button style={{ width: '100%', padding: '1rem', background: 'rgba(255,255,255,0.05)', borderRadius: '12px', marginTop: '1rem', color: 'var(--text-secondary)', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem', border: 'none', cursor: 'pointer' }}>
             <Settings size={18} /> Edit Profile
           </button>
+        </div>
+      )}
+
+      {activeTab === 'loans' && (
+        <div className="mobile-body">
+           <h3 style={{ marginBottom: '1rem' }}>My Loans</h3>
+           <div className="card" style={{ padding: '1.25rem', marginBottom: '1.25rem', border: '1px solid rgba(16, 185, 129, 0.3)', background: 'linear-gradient(145deg, rgba(16, 185, 129, 0.05) 0%, rgba(0,0,0,0) 100%)' }}>
+             <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '1rem' }}>
+               <div>
+                 <span style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>Active Working Capital</span>
+                 <div style={{ fontSize: '1.5rem', fontWeight: 'bold', color: '#fff' }}>₹15,000</div>
+               </div>
+               <span className="status-badge status-active">ACTIVE</span>
+             </div>
+             
+             <div style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', marginBottom: '0.5rem', display: 'flex', justifyContent: 'space-between' }}>
+               <span>Repaid: ₹5,000</span>
+               <span>Remaining: ₹10,000</span>
+             </div>
+             <div style={{ width: '100%', height: '8px', background: 'rgba(255,255,255,0.1)', borderRadius: '4px', overflow: 'hidden', marginBottom: '1.25rem' }}>
+               <div style={{ width: '33%', height: '100%', background: 'var(--success)', borderRadius: '4px' }}></div>
+             </div>
+             
+             <button style={{ width: '100%', padding: '0.75rem', background: 'var(--success)', color: '#fff', border: 'none', borderRadius: '8px', fontWeight: '600', cursor: 'pointer' }}>
+               Pay EMI (₹2,500)
+             </button>
+           </div>
+           
+           <h4 style={{ marginBottom: '1rem', color: 'var(--text-secondary)', fontSize: '0.9rem', textTransform: 'uppercase' }}>Past Loans</h4>
+           <div className="card" style={{ padding: '1.25rem', opacity: 0.7 }}>
+             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+               <div>
+                 <div style={{ fontWeight: '600', fontSize: '1.1rem' }}>₹10,000</div>
+                 <div style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', marginTop: '0.25rem' }}>Closed Jan 2026</div>
+               </div>
+               <span className="status-badge status-paid" style={{ background: 'rgba(255,255,255,0.1)', color: 'var(--text-secondary)' }}>PAID</span>
+             </div>
+           </div>
         </div>
       )}
 
