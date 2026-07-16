@@ -21,6 +21,14 @@ const allTransactions = [
   { id: 5, name: 'Customer Payment', time: 'Mon, 10:00 AM', amount: '+₹3,000', type: 'in' },
 ];
 
+const loanPortfolioData = [
+  { id: 'LN-001', enterprise: 'Srikanth Kirana Store', owner: 'Ganesh Krishna', amount: '₹15,000', risk: 85, status: 'Active' },
+  { id: 'LN-002', enterprise: 'Ramesh Agro Traders', owner: 'Ramesh Patel', amount: '₹45,000', risk: 42, status: 'High Risk' },
+  { id: 'LN-003', enterprise: 'Laxmi Textiles', owner: 'Laxmi Devi', amount: '₹20,000', risk: 91, status: 'Paid' },
+  { id: 'LN-004', enterprise: 'Balaji Hardware', owner: 'Suresh Sharma', amount: '₹35,000', risk: 78, status: 'Active' },
+  { id: 'LN-005', enterprise: 'Venkateswara Dairy', owner: 'V. Rao', amount: '₹50,000', risk: 65, status: 'Pending Review' }
+];
+
 // Toast Component
 const Toast = ({ message, onClose }) => {
   useEffect(() => {
@@ -196,6 +204,56 @@ function App() {
                 <p>Late payment identified for 2 local suppliers.</p>
               </div>
             </div>
+          </div>
+        </div>
+
+        <div className="card table-card">
+          <div className="card-title">
+            <FileText size={20} color="var(--accent-color)" />
+            Enterprise Loan Portfolio
+          </div>
+          <div className="table-responsive">
+            <table className="portfolio-table">
+              <thead>
+                <tr>
+                  <th>Loan ID</th>
+                  <th>Enterprise Details</th>
+                  <th>Loan Amount</th>
+                  <th>Risk Score</th>
+                  <th>Status</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                {loanPortfolioData.map((loan) => (
+                  <tr key={loan.id}>
+                    <td style={{ fontWeight: '600' }}>{loan.id}</td>
+                    <td>
+                      <div style={{ fontWeight: '500' }}>{loan.enterprise}</div>
+                      <div style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>{loan.owner}</div>
+                    </td>
+                    <td style={{ fontWeight: '600' }}>{loan.amount}</td>
+                    <td>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                        <div className={`score-badge ${loan.risk >= 80 ? 'score-high' : loan.risk >= 60 ? 'score-med' : 'score-low'}`}>
+                          {loan.risk}
+                        </div>
+                      </div>
+                    </td>
+                    <td>
+                      <span className={`status-badge status-${loan.status.toLowerCase().replace(' ', '-')}`}>
+                        {loan.status}
+                      </span>
+                    </td>
+                    <td>
+                      <button className="action-btn" onClick={() => showToast(`Opening profile for ${loan.enterprise}`)}>
+                        View Profile
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
           </div>
         </div>
       </div>
